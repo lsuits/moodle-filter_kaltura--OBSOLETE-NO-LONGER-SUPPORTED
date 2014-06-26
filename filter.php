@@ -102,7 +102,7 @@ class filter_kaltura extends moodle_text_filter {
      * @return string - The same text or modified text is returned
      */
     function filter($text, array $options = array()) {
-        global $CFG, $PAGE, $DB;
+        global $CFG, $COURSE, $PAGE, $DB;
 
         // Check if the local Kaltura plug-in exists.
         if (!self::$kalturalocal) {
@@ -130,7 +130,7 @@ class filter_kaltura extends moodle_text_filter {
             $uri = rtrim($uri, '/');
             $uri = str_replace(array('.', '/', 'https'), array('\.', '\/', 'https?'), $uri);
 
-            $search = '/<a\s[^>]*href="('.$uri.')\/index\.php\/kwidget\/wid\/_([0-9]+)\/uiconf_id\/([0-9]+)\/entry_id\/([\d]+_([a-z0-9]+))\/v\/flash"[^>]*>([^>]*)<\/a>/is';
+            $search = '/<a\s[^>]*href="(' . $uri . ')\/index\.php\/kwidget\/wid\/_([0-9]+)\/uiconf_id\/([0-9]+)\/entry_id\/([\d]+_([a-z0-9]+))\/v\/flash.+?>([^>]*)<\/a>/is';
 
             // Update the static array of videos, so that later on in the code we can create generate a viewing session for each video
             preg_replace_callback($search, 'update_video_list', $newtext);
@@ -146,9 +146,8 @@ class filter_kaltura extends moodle_text_filter {
             }
 
             // Get the course id of the current context
-            $context = $PAGE->context;
             if (empty(self::$courseid)) {
-                self::$courseid = $context->get_course_context(false);
+                self::$courseid = $COURSE->id;
             }
 
             try {
@@ -178,6 +177,7 @@ class filter_kaltura extends moodle_text_filter {
                 $newtext = preg_replace_callback($search, 'filter_kaltura_callback', $newtext);
 
             } catch (Exception $exp) {
+print_r($exp);
                 add_to_log(self::$courseid, 'filter_kaltura', 'Error embedding video', '', $exp->getMessage());
             }
         }
