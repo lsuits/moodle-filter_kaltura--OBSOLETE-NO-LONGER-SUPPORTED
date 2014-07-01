@@ -177,7 +177,6 @@ class filter_kaltura extends moodle_text_filter {
                 $newtext = preg_replace_callback($search, 'filter_kaltura_callback', $newtext);
 
             } catch (Exception $exp) {
-print_r($exp);
                 add_to_log(self::$courseid, 'filter_kaltura', 'Error embedding video', '', $exp->getMessage());
             }
         }
